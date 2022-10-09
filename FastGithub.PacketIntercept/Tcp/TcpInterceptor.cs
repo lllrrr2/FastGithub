@@ -50,8 +50,6 @@ namespace FastGithub.PacketIntercept.Tcp
                 return;
             }
 
-            await Task.Yield();
-
             using var divert = new WinDivert(this.filter, WinDivertLayer.Network, 0, WinDivertFlag.None);
             if (Socket.OSSupportsIPv4)
             {
@@ -68,7 +66,7 @@ namespace FastGithub.PacketIntercept.Tcp
             while (cancellationToken.IsCancellationRequested == false)
             {
                 addr.Clear();
-                divert.Recv(packet, ref addr);
+                await divert.RecvAsync(packet, ref addr);
 
                 try
                 {
@@ -80,7 +78,7 @@ namespace FastGithub.PacketIntercept.Tcp
                 }
                 finally
                 {
-                    divert.Send(packet, ref addr);
+                    await divert.SendAsync(packet, ref addr);
                 }
             }
         }
